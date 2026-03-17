@@ -1,0 +1,27 @@
+[package]
+name = "github-webhook-ingester"
+version = "0.1.0"
+edition = "2024"
+authors = ["Your Name <your.email@example.com>"]
+license = "GPL-3.0-only"
+description = "GitHub webhook receiver that transforms events to ECS and forwards to Elasticsearch"
+repository = "https://github.com/USER/github-webhook-ingester"
+keywords = ["github", "webhook", "elasticsearch", "ecs", "siem"]
+categories = ["network-programming"]
+
+[dependencies]
+axum = { version = "0.8", features = ["json", "macros"] }
+tokio = { version = "1", features = ["full"] }
+tower-http = { version = "0.6", features = ["trace"] }
+reqwest = { version = "0.12", features = ["json", "rustls-tls"], default-features = false }
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+chrono = { version = "0.4", features = ["serde"] }
+dotenvy = "0.15"
+tracing = "0.1"
+tracing-subscriber = { version = "0.3", features = ["env-filter"] }
+thiserror = "2"
+anyhow = "1"
+hmac = "0.12"
+sha2 = "0.10"
+hex = "0.4"

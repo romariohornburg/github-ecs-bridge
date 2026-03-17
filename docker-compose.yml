@@ -1,0 +1,17 @@
+services:
+  github-webhook-ingester:
+    build: .
+    container_name: github-webhook-ingester
+    ports:
+      - "3001:3001"
+    env_file: .env
+    environment:
+      - LISTEN_ADDR=0.0.0.0:3001
+      - RUST_LOG=${RUST_LOG:-info}
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-sf", "http://127.0.0.1:3001/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 5s

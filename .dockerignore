@@ -1,0 +1,22 @@
+# Ignore the local target directory
+target/
+
+# Ignore the build cache from earlier Docker runs if any
+.docker/
+
+# Ignore version control
+.git/
+.gitignore
+
+# Ignore sensitive files
+.env
+.env.local
+
+# Ignore docs
+README.md
+TESTING.md
+CONTRIBUTING.md
+LICENSE
+
+# Ignore development tools configuration
+.claude/
