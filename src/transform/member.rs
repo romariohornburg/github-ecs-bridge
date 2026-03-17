@@ -18,7 +18,10 @@ pub fn transform(payload: &Value) -> EcsEvent {
     };
 
     let member = payload.get("member").unwrap_or(&Value::Null);
-    let user_id = member.get("id").and_then(|v| v.as_i64()).map(|id| id.to_string());
+    let user_id = member
+        .get("id")
+        .and_then(|v| v.as_i64())
+        .map(|id| id.to_string());
 
     EcsEvent {
         timestamp: now,

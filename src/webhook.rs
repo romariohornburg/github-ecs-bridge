@@ -1,9 +1,9 @@
 use axum::{
+    Json,
     body::Bytes,
     extract::State,
     http::{HeaderMap, StatusCode},
     response::IntoResponse,
-    Json,
 };
 use hmac::{Hmac, Mac};
 use serde::Serialize;
@@ -50,10 +50,7 @@ pub async fn handle_webhook(
     }
 
     // Extract X-GitHub-Event header.
-    let event_type = match headers
-        .get("X-GitHub-Event")
-        .and_then(|v| v.to_str().ok())
-    {
+    let event_type = match headers.get("X-GitHub-Event").and_then(|v| v.to_str().ok()) {
         Some(e) => e.to_string(),
         None => {
             tracing::warn!("Rejected webhook: missing X-GitHub-Event header");
@@ -70,7 +67,11 @@ pub async fn handle_webhook(
         Ok(v) => v,
         Err(e) => {
             tracing::warn!("Rejected webhook: invalid JSON body: {}", e);
-            return (StatusCode::BAD_REQUEST, Json(ErrorBody::new("Invalid JSON"))).into_response();
+            return (
+                StatusCode::BAD_REQUEST,
+                Json(ErrorBody::new("Invalid JSON")),
+            )
+                .into_response();
         }
     };
 
@@ -85,8 +86,14 @@ pub async fn handle_webhook(
     let index = state.settings.elasticsearch_index.clone();
     let api_key = state.settings.elasticsearch_api_key.clone();
     tokio::spawn(async move {
-        if let Err(e) = crate::elasticsearch::send_bulk(&client, &es_url, &index, &api_key, &ecs_event).await {
-            tracing::error!("Elasticsearch send failed for event '{}': {}", event_type, e);
+        if let Err(e) =
+            crate::elasticsearch::send_bulk(&client, &es_url, &index, &api_key, &ecs_event).await
+        {
+            tracing::error!(
+                "Elasticsearch send failed for event '{}': {}",
+                event_type,
+                e
+            );
         }
     });
 
@@ -119,6 +126,8 @@ struct ErrorBody {
 
 impl ErrorBody {
     fn new(msg: &str) -> Self {
-        Self { error: msg.to_string() }
+        Self {
+            error: msg.to_string(),
+        }
     }
 }

@@ -25,7 +25,10 @@ pub fn transform(payload: &Value) -> EcsEvent {
 
     let repo = payload.get("repository").unwrap_or(&Value::Null);
 
-    let is_private = repo.get("private").and_then(|v| v.as_bool()).unwrap_or(true);
+    let is_private = repo
+        .get("private")
+        .and_then(|v| v.as_bool())
+        .unwrap_or(true);
     let visibility = repo
         .get("visibility")
         .and_then(|v| v.as_str())

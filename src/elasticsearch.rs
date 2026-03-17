@@ -56,13 +56,14 @@ pub async fn send_bulk(
         .get("errors")
         .and_then(|v| v.as_bool())
         .unwrap_or(false)
-        && let Some(items) = resp_json["items"].as_array() {
-            for item in items {
-                if let Some(err) = item["create"].get("error") {
-                    anyhow::bail!("Elasticsearch per-document error: {}", err);
-                }
+        && let Some(items) = resp_json["items"].as_array()
+    {
+        for item in items {
+            if let Some(err) = item["create"].get("error") {
+                anyhow::bail!("Elasticsearch per-document error: {}", err);
             }
         }
+    }
 
     tracing::debug!("Indexed 1 github.audit event to {}", index);
     Ok(())

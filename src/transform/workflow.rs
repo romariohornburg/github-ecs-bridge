@@ -9,7 +9,10 @@ pub fn transform_run(payload: &Value) -> EcsEvent {
     let common = extract_common(payload);
     let now = Utc::now();
 
-    let action = payload.get("action").and_then(|v| v.as_str()).unwrap_or("completed");
+    let action = payload
+        .get("action")
+        .and_then(|v| v.as_str())
+        .unwrap_or("completed");
 
     let audit_action = match action {
         "completed" => "workflows.completed_workflow_run",
@@ -27,9 +30,18 @@ pub fn transform_run(payload: &Value) -> EcsEvent {
             .get("workflow_id")
             .and_then(|v| v.as_i64())
             .map(|id| id.to_string()),
-        workflow_run_id: run.get("id").and_then(|v| v.as_i64()).map(|id| id.to_string()),
-        head_branch: run.get("head_branch").and_then(|v| v.as_str()).map(String::from),
-        head_sha: run.get("head_sha").and_then(|v| v.as_str()).map(String::from),
+        workflow_run_id: run
+            .get("id")
+            .and_then(|v| v.as_i64())
+            .map(|id| id.to_string()),
+        head_branch: run
+            .get("head_branch")
+            .and_then(|v| v.as_str())
+            .map(String::from),
+        head_sha: run
+            .get("head_sha")
+            .and_then(|v| v.as_str())
+            .map(String::from),
         event: run.get("event").and_then(|v| v.as_str()).map(String::from),
         trigger_id: None,
         started_at: run
@@ -42,10 +54,19 @@ pub fn transform_run(payload: &Value) -> EcsEvent {
             .map(String::from)
             .or_else(|| run.get("name").and_then(|v| v.as_str()).map(String::from)),
         job_name: None,
-        run_number: run.get("run_number").and_then(|v| v.as_i64()).map(|n| n.to_string()),
-        run_attempt: run.get("run_attempt").and_then(|v| v.as_i64()).map(|n| n.to_string()),
+        run_number: run
+            .get("run_number")
+            .and_then(|v| v.as_i64())
+            .map(|n| n.to_string()),
+        run_attempt: run
+            .get("run_attempt")
+            .and_then(|v| v.as_i64())
+            .map(|n| n.to_string()),
         status: run.get("status").and_then(|v| v.as_str()).map(String::from),
-        conclusion: run.get("conclusion").and_then(|v| v.as_str()).map(String::from),
+        conclusion: run
+            .get("conclusion")
+            .and_then(|v| v.as_str())
+            .map(String::from),
     };
 
     EcsEvent {
@@ -104,7 +125,10 @@ pub fn transform_job(payload: &Value) -> EcsEvent {
     let common = extract_common(payload);
     let now = Utc::now();
 
-    let action = payload.get("action").and_then(|v| v.as_str()).unwrap_or("completed");
+    let action = payload
+        .get("action")
+        .and_then(|v| v.as_str())
+        .unwrap_or("completed");
 
     let audit_action = match action {
         "completed" => "workflows.completed_workflow_job",
@@ -117,21 +141,39 @@ pub fn transform_job(payload: &Value) -> EcsEvent {
 
     let workflow_data = WorkflowData {
         workflow_id: None,
-        workflow_run_id: job.get("run_id").and_then(|v| v.as_i64()).map(|id| id.to_string()),
-        head_branch: job.get("head_branch").and_then(|v| v.as_str()).map(String::from),
-        head_sha: job.get("head_sha").and_then(|v| v.as_str()).map(String::from),
+        workflow_run_id: job
+            .get("run_id")
+            .and_then(|v| v.as_i64())
+            .map(|id| id.to_string()),
+        head_branch: job
+            .get("head_branch")
+            .and_then(|v| v.as_str())
+            .map(String::from),
+        head_sha: job
+            .get("head_sha")
+            .and_then(|v| v.as_str())
+            .map(String::from),
         event: None,
         trigger_id: None,
         started_at: job
             .get("started_at")
             .and_then(|v| v.as_str())
             .and_then(parse_gh_date),
-        workflow_name: job.get("workflow_name").and_then(|v| v.as_str()).map(String::from),
+        workflow_name: job
+            .get("workflow_name")
+            .and_then(|v| v.as_str())
+            .map(String::from),
         job_name: job.get("name").and_then(|v| v.as_str()).map(String::from),
         run_number: None,
-        run_attempt: job.get("run_attempt").and_then(|v| v.as_i64()).map(|n| n.to_string()),
+        run_attempt: job
+            .get("run_attempt")
+            .and_then(|v| v.as_i64())
+            .map(|n| n.to_string()),
         status: job.get("status").and_then(|v| v.as_str()).map(String::from),
-        conclusion: job.get("conclusion").and_then(|v| v.as_str()).map(String::from),
+        conclusion: job
+            .get("conclusion")
+            .and_then(|v| v.as_str())
+            .map(String::from),
     };
 
     EcsEvent {

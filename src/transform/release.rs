@@ -19,7 +19,10 @@ pub fn transform(payload: &Value) -> EcsEvent {
 
     let release = payload.get("release").unwrap_or(&Value::Null);
     // Use the tag name as commit_id for alignment with the mapped field.
-    let tag_name = release.get("tag_name").and_then(|v| v.as_str()).map(String::from);
+    let tag_name = release
+        .get("tag_name")
+        .and_then(|v| v.as_str())
+        .map(String::from);
 
     EcsEvent {
         timestamp: now,

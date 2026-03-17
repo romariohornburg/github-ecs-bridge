@@ -1,8 +1,8 @@
 use axum::{
+    Json,
     body::Bytes,
     http::{HeaderMap, StatusCode},
     response::IntoResponse,
-    Json,
 };
 use serde::Serialize;
 
@@ -12,10 +12,7 @@ use serde::Serialize;
 /// encaminhar ao Elasticsearch, retorna o documento ECS gerado como JSON.
 /// Não valida a assinatura HMAC — apenas para uso local.
 pub async fn handle_debug(headers: HeaderMap, body: Bytes) -> impl IntoResponse {
-    let event_type = match headers
-        .get("X-GitHub-Event")
-        .and_then(|v| v.to_str().ok())
-    {
+    let event_type = match headers.get("X-GitHub-Event").and_then(|v| v.to_str().ok()) {
         Some(e) => e.to_string(),
         None => {
             return (
