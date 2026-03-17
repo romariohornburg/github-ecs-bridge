@@ -129,7 +129,6 @@ pub struct GithubFields {
     pub programmatic_access_type: Option<String>,
 
     // ── Pull request fields (top-level per mapping) ──────────────────────────
-
     /// PR / issue number — mapped as `long`.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub number: Option<i64>,
@@ -153,7 +152,6 @@ pub struct GithubFields {
     pub source_branch: Option<String>,
 
     // ── Repository fields ─────────────────────────────────────────────────────
-
     #[serde(skip_serializing_if = "Option::is_none")]
     pub visibility: Option<String>,
 
@@ -161,7 +159,6 @@ pub struct GithubFields {
     pub public_repo: Option<bool>,
 
     // ── Member / IAM fields ───────────────────────────────────────────────────
-
     /// User affected by the action (e.g. the member added/removed).
     #[serde(skip_serializing_if = "Option::is_none")]
     pub user_id: Option<String>,
@@ -174,7 +171,6 @@ pub struct GithubFields {
     pub permission: Option<String>,
 
     // ── Misc ──────────────────────────────────────────────────────────────────
-
     /// Full name of the forked-from repository (fork events).
     #[serde(skip_serializing_if = "Option::is_none")]
     pub forked_repository: Option<String>,
@@ -184,7 +180,6 @@ pub struct GithubFields {
     pub commit_id: Option<String>,
 
     // ── Workflow sub-object ───────────────────────────────────────────────────
-
     /// github.data — typed sub-object used only for workflow_run / workflow_job events.
     /// Field types match the explicit mapping (all keyword/date, never integer).
     #[serde(skip_serializing_if = "Option::is_none")]

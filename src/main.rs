@@ -1,4 +1,7 @@
-use axum::{routing::{get, post}, Router};
+use axum::{
+    Router,
+    routing::{get, post},
+};
 use std::net::SocketAddr;
 use tower_http::trace::TraceLayer;
 
@@ -51,7 +54,9 @@ async fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
         .map_err(|e| format!("Invalid LISTEN_ADDR '{}': {}", settings.listen_addr, e))?;
 
     tracing::info!("github-webhook-ingester listening on {}", addr);
-    tracing::warn!("Endpoint /debug/webhook is enabled and does NOT require HMAC signature validation. Use with caution in production.");
+    tracing::warn!(
+        "Endpoint /debug/webhook is enabled and does NOT require HMAC signature validation. Use with caution in production."
+    );
 
     let listener = tokio::net::TcpListener::bind(addr).await?;
     axum::serve(listener, app).await?;

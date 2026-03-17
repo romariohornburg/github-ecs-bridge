@@ -20,8 +20,14 @@ pub fn transform(payload: &Value) -> EcsEvent {
     };
 
     let gh_team = payload.get("team").unwrap_or(&Value::Null);
-    let team_name = gh_team.get("name").and_then(|v| v.as_str()).map(String::from);
-    let permission = gh_team.get("permission").and_then(|v| v.as_str()).map(String::from);
+    let team_name = gh_team
+        .get("name")
+        .and_then(|v| v.as_str())
+        .map(String::from);
+    let permission = gh_team
+        .get("permission")
+        .and_then(|v| v.as_str())
+        .map(String::from);
 
     EcsEvent {
         timestamp: now,
@@ -80,7 +86,10 @@ pub fn transform_team_add(payload: &Value) -> EcsEvent {
     let now = Utc::now();
 
     let gh_team = payload.get("team").unwrap_or(&Value::Null);
-    let team_name = gh_team.get("name").and_then(|v| v.as_str()).map(String::from);
+    let team_name = gh_team
+        .get("name")
+        .and_then(|v| v.as_str())
+        .map(String::from);
 
     EcsEvent {
         timestamp: now,

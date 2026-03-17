@@ -30,7 +30,10 @@ pub fn transform(payload: &Value) -> EcsEvent {
         .or_else(|| invitee.get("id").and_then(|v| v.as_i64()))
         .map(|id| id.to_string());
 
-    let role = membership.get("role").and_then(|v| v.as_str()).map(String::from);
+    let role = membership
+        .get("role")
+        .and_then(|v| v.as_str())
+        .map(String::from);
 
     EcsEvent {
         timestamp: now,

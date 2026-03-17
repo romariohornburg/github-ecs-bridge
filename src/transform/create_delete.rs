@@ -9,7 +9,10 @@ pub fn transform_create(payload: &Value) -> EcsEvent {
     let common = extract_common(payload);
     let now = Utc::now();
 
-    let ref_name = payload.get("ref").and_then(|v| v.as_str()).map(String::from);
+    let ref_name = payload
+        .get("ref")
+        .and_then(|v| v.as_str())
+        .map(String::from);
 
     EcsEvent {
         timestamp: now,
@@ -67,7 +70,10 @@ pub fn transform_delete(payload: &Value) -> EcsEvent {
     let common = extract_common(payload);
     let now = Utc::now();
 
-    let ref_name = payload.get("ref").and_then(|v| v.as_str()).map(String::from);
+    let ref_name = payload
+        .get("ref")
+        .and_then(|v| v.as_str())
+        .map(String::from);
 
     EcsEvent {
         timestamp: now,

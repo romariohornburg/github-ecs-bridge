@@ -26,8 +26,7 @@ impl Settings {
             .map_err(|_| ConfigError::MissingEnv("ELASTICSEARCH_API_KEY"))?;
         let elasticsearch_index = std::env::var("ELASTICSEARCH_INDEX")
             .unwrap_or_else(|_| "logs-github.audit-default".into());
-        let listen_addr =
-            std::env::var("LISTEN_ADDR").unwrap_or_else(|_| "0.0.0.0:3001".into());
+        let listen_addr = std::env::var("LISTEN_ADDR").unwrap_or_else(|_| "0.0.0.0:3001".into());
 
         Ok(Self {
             webhook_secret,

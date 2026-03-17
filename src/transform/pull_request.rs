@@ -28,7 +28,10 @@ pub fn transform(payload: &Value) -> EcsEvent {
 
     // Map to top-level github.* fields per Elasticsearch mapping.
     let number = pr.get("number").and_then(|v| v.as_i64());
-    let pull_request_url = pr.get("html_url").and_then(|v| v.as_str()).map(String::from);
+    let pull_request_url = pr
+        .get("html_url")
+        .and_then(|v| v.as_str())
+        .map(String::from);
     let pull_request_title = pr.get("title").and_then(|v| v.as_str()).map(String::from);
     let pull_request_id = pr.get("node_id").and_then(|v| v.as_str()).map(String::from);
     let target_branch = pr
