@@ -81,11 +81,14 @@ pub async fn handle_webhook(
     let ecs_event = crate::transform::transform(&event_type, &payload);
 
     // Forward to Elasticsearch asynchronously — fire and forget.
+    // Semaphore prevents unbounded task accumulation when ES is slow.
     let client = state.es_client.clone();
     let es_url = state.settings.elasticsearch_url.clone();
     let index = state.settings.elasticsearch_index.clone();
     let api_key = state.settings.elasticsearch_api_key.clone();
+    let semaphore = state.es_semaphore.clone();
     tokio::spawn(async move {
+        let _permit = semaphore.acquire_owned().await;
         if let Err(e) =
             crate::elasticsearch::send_bulk(&client, &es_url, &index, &api_key, &ecs_event).await
         {

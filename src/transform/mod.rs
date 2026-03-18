@@ -129,4 +129,145 @@ mod tests {
         assert_eq!(truncate_utf8(s, 11), "Hello, 🌍");
         assert_eq!(truncate_utf8(s, 12), "Hello, 🌍!");
     }
+
+    #[test]
+    fn test_transform_issues_opened() {
+        let payload = json!({
+            "action": "opened",
+            "issue": {"number": 5},
+            "repository": {"id": 1, "full_name": "org/repo"},
+            "organization": {"login": "org", "id": 99},
+            "sender": {"login": "user", "id": 42}
+        });
+
+        let ecs = transform("issues", &payload);
+        assert_eq!(ecs.event.action, "issue.create");
+        assert_eq!(ecs.event.category, vec!["configuration"]);
+        assert_eq!(ecs.github.number, Some(5));
+        assert_eq!(ecs.github.actor, "user");
+    }
+
+    #[test]
+    fn test_transform_issues_closed() {
+        let payload = json!({
+            "action": "closed",
+            "issue": {"number": 7},
+            "repository": {"id": 1, "full_name": "org/repo"},
+            "organization": {"login": "org", "id": 99},
+            "sender": {"login": "closer", "id": 10}
+        });
+
+        let ecs = transform("issues", &payload);
+        assert_eq!(ecs.event.action, "issue.close");
+        assert_eq!(ecs.github.actor, "closer");
+    }
+
+    #[test]
+    fn test_transform_member_added() {
+        let payload = json!({
+            "action": "added",
+            "member": {"login": "newuser", "id": 200},
+            "repository": {"id": 1, "full_name": "org/repo"},
+            "organization": {"login": "org", "id": 99},
+            "sender": {"login": "admin", "id": 1}
+        });
+
+        let ecs = transform("member", &payload);
+        assert_eq!(ecs.event.action, "repo.add_member");
+        assert_eq!(ecs.event.category, vec!["iam"]);
+        assert_eq!(ecs.github.user_id, Some("200".to_string()));
+        assert_eq!(ecs.github.actor, "admin");
+    }
+
+    #[test]
+    fn test_transform_member_removed() {
+        let payload = json!({
+            "action": "removed",
+            "member": {"login": "olduser", "id": 300},
+            "repository": {"id": 1, "full_name": "org/repo"},
+            "organization": {"login": "org", "id": 99},
+            "sender": {"login": "admin", "id": 1}
+        });
+
+        let ecs = transform("member", &payload);
+        assert_eq!(ecs.event.action, "repo.remove_member");
+        assert_eq!(ecs.event.event_type, vec!["deletion"]);
+    }
+
+    #[test]
+    fn test_transform_organization_member_added() {
+        let payload = json!({
+            "action": "member_added",
+            "membership": {"user": {"id": 555}, "role": "member"},
+            "organization": {"login": "myorg", "id": 10},
+            "sender": {"login": "owner", "id": 1}
+        });
+
+        let ecs = transform("organization", &payload);
+        assert_eq!(ecs.event.action, "org.add_member");
+        assert_eq!(ecs.event.category, vec!["iam"]);
+        assert_eq!(ecs.github.user_id, Some("555".to_string()));
+        assert_eq!(ecs.github.permission, Some("member".to_string()));
+        assert_eq!(ecs.github.repo, None);
+    }
+
+    #[test]
+    fn test_transform_organization_member_removed() {
+        let payload = json!({
+            "action": "member_removed",
+            "membership": {"user": {"id": 555}, "role": "member"},
+            "organization": {"login": "myorg", "id": 10},
+            "sender": {"login": "owner", "id": 1}
+        });
+
+        let ecs = transform("organization", &payload);
+        assert_eq!(ecs.event.action, "org.remove_member");
+        assert_eq!(ecs.event.event_type, vec!["deletion"]);
+    }
+
+    #[test]
+    fn test_transform_workflow_run_completed() {
+        let payload = json!({
+            "action": "completed",
+            "workflow_run": {
+                "id": 12345,
+                "workflow_id": 99,
+                "head_branch": "main",
+                "head_sha": "abc123",
+                "event": "push",
+                "run_number": 42,
+                "run_attempt": 1,
+                "status": "completed",
+                "conclusion": "success",
+                "run_started_at": "2024-01-01T00:00:00Z"
+            },
+            "workflow": {"name": "CI"},
+            "repository": {"id": 1, "full_name": "org/repo"},
+            "organization": {"login": "org", "id": 99},
+            "sender": {"login": "bot", "id": 7}
+        });
+
+        let ecs = transform("workflow_run", &payload);
+        assert_eq!(ecs.event.action, "workflows.completed_workflow_run");
+        let data = ecs.github.data.expect("data should be set");
+        assert_eq!(data.workflow_run_id, Some("12345".to_string()));
+        assert_eq!(data.workflow_name, Some("CI".to_string()));
+        assert_eq!(data.head_branch, Some("main".to_string()));
+        assert_eq!(data.conclusion, Some("success".to_string()));
+        assert_eq!(data.run_number, Some("42".to_string()));
+    }
+
+    #[test]
+    fn test_transform_workflow_run_requested() {
+        let payload = json!({
+            "action": "requested",
+            "workflow_run": {"id": 1, "workflow_id": 2},
+            "workflow": {},
+            "repository": {"id": 1, "full_name": "org/repo"},
+            "sender": {"login": "user", "id": 1}
+        });
+
+        let ecs = transform("workflow_run", &payload);
+        assert_eq!(ecs.event.action, "workflows.requested_workflow_run");
+    }
 }

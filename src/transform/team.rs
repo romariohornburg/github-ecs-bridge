@@ -1,7 +1,7 @@
 use chrono::Utc;
 use serde_json::Value;
 
-use crate::transform::common::{extract_common, make_data_stream, to_epoch_millis};
+use crate::transform::common::{base_github_fields, extract_common, make_data_stream};
 use crate::transform::types::{EcsEvent, EventFields, GithubFields};
 
 pub fn transform(payload: &Value) -> EcsEvent {
@@ -29,6 +29,12 @@ pub fn transform(payload: &Value) -> EcsEvent {
         .and_then(|v| v.as_str())
         .map(String::from);
 
+    let github = GithubFields {
+        team: team_name,
+        permission,
+        ..base_github_fields(&common, audit_action, &now)
+    };
+
     EcsEvent {
         timestamp: now,
         event: EventFields {
@@ -45,35 +51,7 @@ pub fn transform(payload: &Value) -> EcsEvent {
         organization: common.org,
         source: None,
         related: None,
-        github: GithubFields {
-            action: audit_action.into(),
-            actor: common.actor,
-            actor_id: common.actor_id.map(|id| id.to_string()),
-            actor_ip: None,
-            org: common.org_name,
-            org_id: common.org_id.map(|id| id.to_string()),
-            repo: common.repo,
-            repo_id: common.repo_id.map(|id| id.to_string()),
-            repository: None,
-            created_at: to_epoch_millis(&now),
-            user_agent: None,
-            hashed_token: None,
-            programmatic_access_type: None,
-            number: None,
-            pull_request_url: None,
-            pull_request_title: None,
-            pull_request_id: None,
-            target_branch: None,
-            source_branch: None,
-            visibility: None,
-            public_repo: None,
-            user_id: None,
-            team: team_name,
-            permission,
-            forked_repository: None,
-            commit_id: None,
-            data: None,
-        },
+        github,
         user_agent: None,
         tags: vec!["github-webhook".into()],
         data_stream: make_data_stream(),
@@ -91,6 +69,11 @@ pub fn transform_team_add(payload: &Value) -> EcsEvent {
         .and_then(|v| v.as_str())
         .map(String::from);
 
+    let github = GithubFields {
+        team: team_name,
+        ..base_github_fields(&common, "team.add_repository", &now)
+    };
+
     EcsEvent {
         timestamp: now,
         event: EventFields {
@@ -107,35 +90,7 @@ pub fn transform_team_add(payload: &Value) -> EcsEvent {
         organization: common.org,
         source: None,
         related: None,
-        github: GithubFields {
-            action: "team.add_repository".into(),
-            actor: common.actor,
-            actor_id: common.actor_id.map(|id| id.to_string()),
-            actor_ip: None,
-            org: common.org_name,
-            org_id: common.org_id.map(|id| id.to_string()),
-            repo: common.repo,
-            repo_id: common.repo_id.map(|id| id.to_string()),
-            repository: None,
-            created_at: to_epoch_millis(&now),
-            user_agent: None,
-            hashed_token: None,
-            programmatic_access_type: None,
-            number: None,
-            pull_request_url: None,
-            pull_request_title: None,
-            pull_request_id: None,
-            target_branch: None,
-            source_branch: None,
-            visibility: None,
-            public_repo: None,
-            user_id: None,
-            team: team_name,
-            permission: None,
-            forked_repository: None,
-            commit_id: None,
-            data: None,
-        },
+        github,
         user_agent: None,
         tags: vec!["github-webhook".into()],
         data_stream: make_data_stream(),
