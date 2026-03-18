@@ -1,7 +1,7 @@
 use chrono::{DateTime, Utc};
 use serde_json::Value;
 
-use crate::transform::types::{DataStreamFields, OrgFields, UserFields};
+use crate::transform::types::{DataStreamFields, GithubFields, OrgFields, UserFields};
 
 /// Fields extracted from every GitHub webhook payload.
 pub struct CommonFields {
@@ -73,6 +73,44 @@ pub fn extract_common(payload: &Value) -> CommonFields {
         org_id,
         repo,
         repo_id,
+    }
+}
+
+/// Build a `GithubFields` populated with all common fields and every optional field set to `None`.
+/// Transformers use struct update syntax (`..base_github_fields(...)`) to override specific fields.
+pub fn base_github_fields(
+    common: &CommonFields,
+    action: &str,
+    now: &DateTime<Utc>,
+) -> GithubFields {
+    GithubFields {
+        action: action.to_string(),
+        actor: common.actor.clone(),
+        actor_id: common.actor_id.map(|id| id.to_string()),
+        actor_ip: None,
+        org: common.org_name.clone(),
+        org_id: common.org_id.map(|id| id.to_string()),
+        repo: common.repo.clone(),
+        repo_id: common.repo_id.map(|id| id.to_string()),
+        repository: None,
+        created_at: to_epoch_millis(now),
+        user_agent: None,
+        hashed_token: None,
+        programmatic_access_type: None,
+        number: None,
+        pull_request_url: None,
+        pull_request_title: None,
+        pull_request_id: None,
+        target_branch: None,
+        source_branch: None,
+        visibility: None,
+        public_repo: None,
+        user_id: None,
+        team: None,
+        permission: None,
+        forked_repository: None,
+        commit_id: None,
+        data: None,
     }
 }
 

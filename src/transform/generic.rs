@@ -1,44 +1,8 @@
 use chrono::Utc;
 use serde_json::Value;
 
-use crate::transform::common::{extract_common, make_data_stream, to_epoch_millis};
-use crate::transform::types::{EcsEvent, EventFields, GithubFields};
-
-fn base_github_fields(
-    common: &crate::transform::common::CommonFields,
-    audit_action: &str,
-    now: &chrono::DateTime<Utc>,
-) -> GithubFields {
-    GithubFields {
-        action: audit_action.into(),
-        actor: common.actor.clone(),
-        actor_id: common.actor_id.map(|id| id.to_string()),
-        actor_ip: None,
-        org: common.org_name.clone(),
-        org_id: common.org_id.map(|id| id.to_string()),
-        repo: common.repo.clone(),
-        repo_id: common.repo_id.map(|id| id.to_string()),
-        repository: None,
-        created_at: to_epoch_millis(now),
-        user_agent: None,
-        hashed_token: None,
-        programmatic_access_type: None,
-        number: None,
-        pull_request_url: None,
-        pull_request_title: None,
-        pull_request_id: None,
-        target_branch: None,
-        source_branch: None,
-        visibility: None,
-        public_repo: None,
-        user_id: None,
-        team: None,
-        permission: None,
-        forked_repository: None,
-        commit_id: None,
-        data: None,
-    }
-}
+use crate::transform::common::{base_github_fields, extract_common, make_data_stream};
+use crate::transform::types::{EcsEvent, EventFields};
 
 /// Build an EcsEvent for simple events with a fixed mapping.
 pub fn transform_simple(
